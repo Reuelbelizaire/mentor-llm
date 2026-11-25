@@ -1,0 +1,11 @@
+# Secrets & environment variables
+.env
+
+# Virtual environment & Python cache
+.venv/
+__pycache__/
+*.pyc
+
+# Large exported model weights (when you export GGUF later)
+*.gguf
+*.bin

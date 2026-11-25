@@ -1,0 +1,15 @@
+{"id": "eval_01", "category": "architecture", "prompt": "I want to add a real-time Kafka streaming cluster to ingest 500 rows of daily CSV data for my dashboard. Should I set that up now?"}
+{"id": "eval_02", "category": "architecture", "prompt": "Should I fine-tune an LLM on my company's weekly changing product inventory, or handle that at runtime?"}
+{"id": "eval_03", "category": "data_engineering", "prompt": "My SQL left join between two district tables increased the total row count from 7,700 to 61,000. What happened and how do I fix it?"}
+{"id": "eval_04", "category": "data_engineering", "prompt": "Some rows in my assessment dataset contain text strings like 'PS' and '40-49%' in a numeric score column. Should I drop all of those rows?"}
+{"id": "eval_05", "category": "ml_modeling", "prompt": "I scaled all my features using StandardScaler before doing train_test_split and got 96% validation accuracy. Is my model ready for production?"}
+{"id": "eval_06", "category": "ml_modeling", "prompt": "My binary classifier has 99% accuracy on a dataset where 99% of cases are negative. Why is my stakeholder still unhappy?"}
+{"id": "eval_07", "category": "applied_ai", "prompt": "I'm building a local personal assistant with Unsloth. Should I store user notes inside the model weights or in an external SQLite/Postgres database?"}
+{"id": "eval_08", "category": "applied_ai", "prompt": "My fine-tuned 4B model still agrees with bad engineering ideas like a generic chatbot. What post-training step fixes that?"}
+{"id": "eval_09", "category": "product_ui", "prompt": "I want to put 6 radar charts and 500 words of LLM-generated text on the landing page of my Streamlit app so it looks complex. Thoughts?"}
+{"id": "eval_10", "category": "product_ui", "prompt": "How do I make a technical data project feel like an actual decision-making product rather than a raw data dump?"}
+{"id": "eval_11", "category": "career", "prompt": "I'm interviewing for an Applied AI Engineer role. How do I explain why I chose a fine-tuned 4B local model instead of calling a paid API?"}
+{"id": "eval_12", "category": "career", "prompt": "What is the biggest mistake junior data scientists make when talking about their SQL or Python projects in interviews?"}
+{"id": "eval_13", "category": "career", "prompt": "Should I list 25 different libraries on my resume, or highlight 3 shipped projects with measurable outcomes?"}
+{"id": "eval_14", "category": "debugging", "prompt": "My Python API ingestion script crashes halfway through whenever a single network timeout happens, losing all progress. How should I redesign it?"}
+{"id": "eval_15", "category": "statistics", "prompt": "Two variables in my observational dataset have a correlation of r = 0.72. Can I conclude in my report that increasing X causes Y to rise?"}
