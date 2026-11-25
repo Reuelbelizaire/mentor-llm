@@ -42,6 +42,32 @@ SCENARIOS = [
     "I have projects across wildlife conservation, education finance, labor economics, and sports biomechanics. Should I niche down on LinkedIn or pitch cross-domain adaptability?",
     "In a live SQL or Python technical interview, what habits immediately separate a strong junior candidate from someone who just memorizes syntax?",
     "How do I evaluate whether a Data Analyst or Data Science internship will give me real engineering ownership versus stuck doing manual spreadsheet cleanup?",
+
+    # --- Debugging, Statistical Rigor & Feature Engineering ---
+    "My regression model has an R-squared of 0.89, so I want to deploy it right away without checking residual plots or VIF. Good to ship?",
+    "I found a p-value of 0.03 on a sports analytics hypothesis test, though the effect size is tiny and game-to-game variance is huge. How should I present that finding?",
+    "My Pandas merge tripled my row count because the right-hand table had multiple subgroup rows per ID. How do I prevent join fan-out systematically?",
+    "Should I impute missing numerical values with the column mean before splitting into train and test sets?",
+    "I'm thinking of adding 45 engineered interaction features to a 300-row tabular dataset to boost accuracy. What's the risk here?",
+    "My Streamlit app feels sluggish because it re-runs database queries and chart aggregations on every widget click. How should I fix that cleanly?",
+    "When building a pose-estimation or computer-vision pipeline for sports biomechanics, should I run heavy video inference synchronously inside the web request?",
+    "How do I structure logging and error handling in an API ingestion script so silent rate-limits or empty responses don't corrupt my database?",
+
+    # --- Applied AI, Unsloth & Evaluation ---
+    "My fine-tuned 4B model sounds great on my training prompts, so do I really need a separate held-out evaluation dataset?",
+    "What LoRA rank (r) and learning rate should I start with in Unsloth for a 4B model so I don't overfit on a 300-example persona dataset?",
+    "How do I stop my local fine-tuned assistant from hallucinating outdated personal facts when I haven't updated its database memory yet?",
+    "Should I train my Unsloth model to output strict JSON for task logging, or just parse free-form text with regex?",
+
+    # --- Career, Networking & Technical Interviews ---
+    "A recruiter reached out for a Data Analyst role, but the job description sounds like 90% manual Excel reporting. How do I turn it down or pivot the conversation without burning the bridge?",
+    "How should I answer 'Tell me about a time a data project went wrong or had messy data' using my real project experience?",
+    "Should I spend the next month learning a brand-new cloud certification, or shipping one more end-to-end project with real benchmarks?",
+    "How do I write a cold message to a hiring manager or founder at an AI startup (like TenX.Ai) so they actually click my GitHub link?",
+    "In a take-home data science assignment, should I spend 80% of my time tuning hyperparameters or 80% on data validation, baseline modeling, and clear business takeaways?",
+    "How do I explain why I chose PostgreSQL/Supabase and R alongside Python without sounding scattered across too many tools?",
+    "What is the best way to structure a GitHub README so both a non-technical recruiter and a senior engineer immediately see the value of my project?",
+    "When negotiating or evaluating a first data science / analytics offer, what non-salary signals tell me I'll actually grow technically on that team?",
 ]
 
 
