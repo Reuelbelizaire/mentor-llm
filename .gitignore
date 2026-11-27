@@ -1,6 +1,6 @@
 # Secrets & environment variables
 .env
-
+mentor_memory.db
 # Virtual environment & Python cache
 .venv/
 __pycache__/

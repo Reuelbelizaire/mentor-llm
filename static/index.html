@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Sanctuary | Senior DS Mentor</title>
+  <style>
+    :root {
+      --bg-top: #152b22;
+      --bg-dark: #0b1511;
+      --panel-bg: rgba(16, 30, 24, 0.92);
+      --panel-border: rgba(134, 239, 172, 0.25);
+      --text-main: #f1f8f4;
+      --text-muted: #9ec2ae;
+      --accent: #34d399;
+      --accent-soft: rgba(52, 211, 153, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, var(--bg-top), var(--bg-dark));
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 10px;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .hud-bar {
+      width: 100%;
+      max-width: 1480px;
+      flex-shrink: 0;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hud-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--accent);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--panel-border);
+      border-radius: 9px;
+      padding: 7px 13px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    button.active {
+      background: var(--accent);
+      color: #062116;
+      border-color: var(--accent);
+    }
+
+    .workspace {
+      width: 100%;
+      max-width: 1480px;
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      grid-template-rows: minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 1080px) {
+      body {
+        height: auto;
+        overflow-y: auto;
+      }
+      .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 460px;
+      }
+    }
+
+    .stage-wrap {
+      background: #0d1a15;
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      height: 100%;
+      min-height: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      background: #13261e;
+      cursor: pointer;
+    }
+
+    .chat-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 8px;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .zone-pill {
+      font-size: 0.76rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--panel-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .zone-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      line-height: 1.38;
+      flex-shrink: 0;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .quick-actions button {
+      font-size: 0.76rem;
+      padding: 5px 9px;
+      border-radius: 7px;
+      background: var(--accent-soft);
+    }
+
+    .chat-log {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .msg {
+      padding: 9px 11px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .msg.system {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--panel-border);
+    }
+
+    .msg.assistant {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--panel-border);
+      align-self: flex-start;
+      max-width: 95%;
+    }
+
+    .msg.user {
+      background: var(--accent-soft);
+      color: var(--text-main);
+      border: 1px solid var(--accent);
+      align-self: flex-end;
+      max-width: 90%;
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .chat-form input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      border-radius: 9px;
+      padding: 9px 11px;
+      color: var(--text-main);
+      font-size: 0.84rem;
+      outline: none;
+    }
+
+    .chat-form input:focus {
+      border-color: var(--accent);
+    }
+
+    .status-strip {
+      width: 100%;
+      max-width: 1480px;
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    .status-strip code {
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud-bar">
+    <div class="hud-title">🌿 The Sanctuary — Senior DS Mentor</div>
+    <div class="controls" id="season-controls">
+      <button type="button" data-season="Normal" class="active">Normal</button>
+      <button type="button" data-season="Autumn">Autumn</button>
+      <button type="button" data-season="Winter">Winter</button>
+    </div>
+    <div class="controls">
+      <button type="button" id="toggle-anim">Pause Anim</button>
+      <button type="button" id="toggle-zones" class="active">Zone Labels: On</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="stage-wrap">
+      <canvas id="sanctuary-canvas" width="1280" height="720"></canvas>
+    </div>
+
+    <aside class="chat-panel">
+      <div class="chat-header">
+        <span>Mentor Console</span>
+        <span class="zone-pill" id="active-zone-badge">Room: Library &amp; Archive</span>
+      </div>
+
+      <div class="zone-desc" id="zone-description">
+        <strong>Library &amp; Archive:</strong> Recall past project notes, saved SQL patterns, and dataset documentation.
+      </div>
+
+      <div class="quick-actions" id="quick-actions"></div>
+
+      <div class="chat-log" id="chat-log">
+        <div class="msg system">
+          Click any of the 4 zones on the canvas to switch mentor functions:
+- Zone 1: Command Center (Mentor Chat)
+- Zone 2: Library &amp; Archive (Saved Project Memory)
+- Zone 3: Analytics Studio (SQL, Code &amp; Models)
+- Zone 4: Habitat Lounge (Career &amp; Portfolio Review)
+        </div>
+      </div>
+
+      <form class="chat-form" id="chat-form">
+        <input
+          id="chat-input"
+          type="text"
+          placeholder="Search or summarize your saved project memory..."
+          autocomplete="off"
+        />
+        <button type="submit" id="send-btn">Ask Mentor</button>
+      </form>
+    </aside>
+  </div>
+
+  <div class="status-strip">
+    <div>Click any zone on the canvas to walk &amp; switch its function · Torches &amp; pets paused for later</div>
+    <div id="asset-status">Loading sprites from <code>/static/assets/</code>...</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("sanctuary-canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    const W = canvas.width;   // 1280
+    const H = canvas.height;  // 720
+
+    // =========================================================================
+    // 1. SEASONAL UI THEME SYNC
+    // =========================================================================
+    const UI_THEMES = {
+      Normal: {
+        "--bg-top": "#152b22",
+        "--bg-dark": "#0b1511",
+        "--panel-bg": "rgba(16, 30, 24, 0.92)",
+        "--panel-border": "rgba(134, 239, 172, 0.25)",
+        "--text-main": "#f1f8f4",
+        "--text-muted": "#9ec2ae",
+        "--accent": "#34d399",
+        "--accent-soft": "rgba(52, 211, 153, 0.16)"
+      },
+      Autumn: {
+        "--bg-top": "#3b1d12",
+        "--bg-dark": "#1a0c07",
+        "--panel-bg": "rgba(38, 20, 13, 0.92)",
+        "--panel-border": "rgba(251, 191, 36, 0.28)",
+        "--text-main": "#fef3c7",
+        "--text-muted": "#d6b48c",
+        "--accent": "#f59e0b",
+        "--accent-soft": "rgba(245, 158, 11, 0.18)"
+      },
+      Winter: {
+        "--bg-top": "#172a3a",
+        "--bg-dark": "#0b1520",
+        "--panel-bg": "rgba(15, 29, 44, 0.92)",
+        "--panel-border": "rgba(125, 211, 252, 0.28)",
+        "--text-main": "#f0f9ff",
+        "--text-muted": "#93c5fd",
+        "--accent": "#38bdf8",
+        "--accent-soft": "rgba(56, 189, 248, 0.18)"
+      }
+    };
+
+    function applySeasonTheme(season) {
+      const theme = UI_THEMES[season] || UI_THEMES.Normal;
+      const root = document.documentElement;
+      Object.entries(theme).forEach(([key, val]) => {
+        root.style.setProperty(key, val);
+      });
+    }
+
+    // =========================================================================
+    // 2. SPRITE ASSETS IN /static/assets/ & /static/assets/Character/
+    // =========================================================================
+    const SPRITE_FILES = [
+      // Clouds
+      "cloud1.png", "cloud2.png", "cloud3.png", "cloud4.png", "cloud5.png", "cloud6.png",
+      // Seasonal Trees (N = Normal, A = Autumn, W = Winter)
+      "Birch_N.png", "Birch_A.png", "Birch_W.png",
+      "Tree_N.png", "Tree_N1.png", "Tree_A.png", "Tree_W.png",
+      "Weeping_Willow_N.png", "Weeping_Willow_A.png", "Weeping_Willow_W.png",
+      // Ground & Single-Object Props
+      "Tall_Grass.png", "Wisp.png", "Torch.png",
+      "Bonsai.png", "Workbench.png", "Alchemy_Decor.png",
+      // Critters (paused static frame)
+      "fox.png", "doggy.png", "fat_cat.png",
+      // Layered Character Sprites (10 cols x 7 rows)
+      "Character/Male_Skin.png",
+      "Character/Green_Pants.png",
+      "Character/Green_Shirt.png",
+      "Character/Boots.png",
+      "Character/Male_Hair.png"
+    ];
+
+    const sprites = {};
+    let loadedCount = 0;
+    let failedCount = 0;
+    const statusEl = document.getElementById("asset-status");
+
+    function updateAssetStatus() {
+      if (!statusEl) return;
+      statusEl.innerHTML =
+        `Loaded <code>${loadedCount}/${SPRITE_FILES.length}</code> sprites from <code>/static/assets/</code>` +
+        (failedCount > 0 ? ` (${failedCount} missing)` : "");
+    }
+
+    SPRITE_FILES.forEach((file) => {
+      const img = new Image();
+      img.src = `/static/assets/${file}`;
+      img.onload = () => {
+        sprites[file] = img;
+        loadedCount++;
+        updateAssetStatus();
+      };
+      img.onerror = () => {
+        failedCount++;
+        updateAssetStatus();
+      };
+    });
+
+    function drawSprite(filename, dx, dy, scale = 2, flipX = false) {
+      const img = sprites[filename];
+      if (!img || !img.complete || img.naturalWidth === 0) return;
+      const dw = img.width * scale;
+      const dh = img.height * scale;
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      if (flipX) {
+        ctx.translate(Math.round(dx + dw), Math.round(dy));
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, 0, 0, dw, dh);
+      } else {
+        ctx.drawImage(img, Math.round(dx), Math.round(dy), dw, dh);
+      }
+      ctx.restore();
+    }
+
+    function drawFirstFrame(filename, dx, dy, frameW, frameH, scale = 2) {
+      const img = sprites[filename];
+      if (!img || !img.complete || img.naturalWidth === 0) return;
+      const sw = Math.min(frameW, img.width);
+      const sh = Math.min(frameH, img.height);
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, sw, sh, Math.round(dx), Math.round(dy), sw * scale, sh * scale);
+      ctx.restore();
+    }
+
+    function drawCharacterLayer(filename, frameCol, frameRow, dx, dy, scale = 2.2, flipX = false) {
+      const img = sprites[filename];
+      if (!img || !img.complete || img.naturalWidth === 0) return;
+
+      const cols = 10;
+      const rows = 7;
+      const frameW = img.naturalWidth / cols;
+      const frameH = img.naturalHeight / rows;
+
+      const sx = (frameCol % cols) * frameW;
+      const sy = (frameRow % rows) * frameH;
+      const dw = frameW * scale;
+      const dh = frameH * scale;
+
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      if (flipX) {
+        ctx.translate(Math.round(dx + dw / 2), Math.round(dy - dh));
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, sx, sy, frameW, frameH, 0, 0, dw, dh);
+      } else {
+        ctx.drawImage(
+          img,
+          sx, sy, frameW, frameH,
+          Math.round(dx - dw / 2),
+          Math.round(dy - dh),
+          dw,
+          dh
+        );
+      }
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 3. COMPLETE PIXEL-ART HOUSE (FLUSH ROOF CONNECTION & SEASONAL ROOF)
+    // =========================================================================
+    function drawCompletePixelHouse(x, y, scale = 2) {
+      const px = (gx, gy, gw, gh, color) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          Math.round(x + gx * scale),
+          Math.round(y + gy * scale),
+          Math.round(gw * scale),
+          Math.round(gh * scale)
+        );
+      };
+
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+
+      // 1. Ground contact shadow
+      px(6, 102, 108, 6, "rgba(0, 0, 0, 0.25)");
+
+      // 2. Stone Chimney (extends down into roof so there is zero seam)
+      px(82, 8, 12, 38, "#64748b");
+      px(80, 6, 16, 4, "#475569");
+      px(84, 14, 4, 4, "#475569");
+      px(88, 22, 4, 4, "#475569");
+
+      // 3. Main Cottage Walls (drawn first so roof eaves overlap cleanly on top)
+      px(14, 48, 92, 48, "#e7d3b0"); // Main plaster wall (starts at y=48 under roof)
+      px(14, 52, 4, 44, "#78350f");  // Left corner timber
+      px(102, 52, 4, 44, "#78350f"); // Right corner timber
+      px(48, 52, 4, 44, "#78350f");  // Center divider beam
+
+      // 4. Pitched Roof (extends to y=54 to overlap the wall top cleanly)
+      const roofDark = currentSeason === "Winter" ? "#cbd5e1" : "#7c2d12";
+      const roofMain = currentSeason === "Winter" ? "#f1f5f9" : "#9a3412";
+      const roofTrim = currentSeason === "Winter" ? "#94a3b8" : "#431407";
+
+      for (let row = 0; row <= 38; row += 2) {
+        const halfSpan = 10 + Math.floor(row * 1.35);
+        const rx = 60 - halfSpan;
+        const rw = halfSpan * 2;
+        px(rx, 14 + row, rw, 2, row % 4 === 0 ? roofDark : roofMain);
+        px(rx - 2, 14 + row, 3, 2, roofTrim);
+        px(rx + rw - 1, 14 + row, 3, 2, roofTrim);
+      }
+
+      // Gable wood siding triangle overlapping smoothly down to the wall header
+      for (let row = 0; row <= 30; row += 2) {
+        const halfSpan = 4 + Math.floor(row * 1.38);
+        px(60 - halfSpan, 22 + row, halfSpan * 2, 2, "#d6b88d");
+      }
+
+      // Solid timber eaves beam sealing the roof-to-wall joint completely
+      px(6, 52, 108, 3, roofTrim);
+      px(14, 54, 92, 3, "#78350f");
+
+      // Gable attic window
+      px(55, 32, 10, 10, "#451a03");
+      px(57, 34, 6, 6, "#fef08a");
+
+      // 5. Stone Foundation Base
+      px(12, 94, 96, 10, "#475569");
+      px(14, 96, 20, 4, "#64748b");
+      px(40, 96, 24, 4, "#64748b");
+      px(72, 96, 28, 4, "#64748b");
+
+      // 6. Front Wooden Door
+      px(24, 66, 18, 28, "#451a03");
+      px(26, 68, 14, 26, "#78350f");
+      px(36, 80, 2, 2, "#fbbf24");
+      px(22, 94, 22, 4, "#94a3b8");
+
+      // 7. Two Warm Paned Windows
+      const drawWindow = (wx, wy) => {
+        px(wx, wy, 18, 16, "#451a03");
+        px(wx + 2, wy + 2, 14, 12, "#fde047");
+        px(wx + 8, wy + 2, 2, 12, "#451a03");
+        px(wx + 2, wy + 7, 14, 2, "#451a03");
+        px(wx - 1, wy + 16, 20, 2, "#78350f");
+      };
+      drawWindow(58, 64);
+      drawWindow(82, 64);
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 4. ZONES, QUICK PROMPTS & UI SYNC
+    // =========================================================================
+    const ZONES = [
+      {
+        id: "zone1",
+        badge: "Room: Command Center",
+        title: "Zone 1: Command Center",
+        subtitle: "Mentor Chat & Architecture",
+        desc: "<strong>Command Center:</strong> General DS mentor &amp; architecture Q&amp;A (SQL schemas, model metrics, portfolio).",
+        placeholder: "Ask about your SQL schema, model metrics, or portfolio...",
+        color: "#34d399",
+        bg: "rgba(16, 185, 129, 0.14)",
+        x: 24, y: 245, w: 390, h: 230,
+        stand: { x: 245, y: 465 },
+        prompts: [
+          "Review my 3NF SQL schema",
+          "Explain precision vs recall tradeoff",
+          "Critique my DS project architecture"
+        ]
+      },
+      {
+        id: "zone2",
+        badge: "Room: Library & Archive",
+        title: "Zone 2: Library & Archive",
+        subtitle: "Saved Project Memory",
+        desc: "<strong>Library &amp; Archive:</strong> Recall past project notes, saved SQL patterns, and dataset documentation.",
+        placeholder: "Search or summarize your saved project memory...",
+        color: "#fbbf24",
+        bg: "rgba(245, 158, 11, 0.10)",
+        x: 430, y: 245, w: 420, h: 230,
+        stand: { x: 640, y: 472 },
+        prompts: [
+          "Summarize my saved project notes",
+          "Recall my ETL cleaning checklist",
+          "List key metrics I tracked"
+        ]
+      },
+      {
+        id: "zone3",
+        badge: "Room: Analytics Studio",
+        title: "Zone 3: Analytics Studio",
+        subtitle: "SQL, R & Python Modeling",
+        desc: "<strong>Analytics Studio:</strong> Debug SQL window functions, pandas pipelines, feature engineering, and model validation.",
+        placeholder: "Paste SQL, Python, or R code to optimize or debug...",
+        color: "#38bdf8",
+        bg: "rgba(56, 189, 248, 0.10)",
+        x: 866, y: 245, w: 390, h: 230,
+        stand: { x: 1040, y: 465 },
+        prompts: [
+          "Write a DENSE_RANK SQL query",
+          "Check my model for data leakage",
+          "Optimize a slow pandas groupby"
+        ]
+      },
+      {
+        id: "zone4",
+        badge: "Room: Habitat Lounge",
+        title: "Zone 4: Habitat Lounge",
+        subtitle: "Career & Portfolio Prep",
+        desc: "<strong>Habitat Lounge:</strong> Polish resume bullets, README storytelling, and technical interview answers.",
+        placeholder: "Ask for resume bullet rewrites, README polish, or mock interview prep...",
+        color: "#818cf8",
+        bg: "rgba(129, 140, 248, 0.14)",
+        x: 24, y: 492, w: 1232, h: 195,
+        stand: { x: 360, y: 645 },
+        prompts: [
+          "Rewrite my project for a DS resume",
+          "Give me a mock SQL interview question",
+          "How do I explain ROI to non-tech folks?"
+        ]
+      }
+    ];
+
+    let currentSeason = "Normal";
+    let isAnimPlaying = true;
+    let showZoneLabels = true;
+    let activeZone = ZONES[1];
+
+    const badgeEl = document.getElementById("active-zone-badge");
+    const descEl = document.getElementById("zone-description");
+    const quickActionsEl = document.getElementById("quick-actions");
+    const chatInputEl = document.getElementById("chat-input");
+    const chatLogEl = document.getElementById("chat-log");
+
+    function appendMessage(role, text) {
+      if (!chatLogEl) return;
+      const div = document.createElement("div");
+      div.className = `msg ${role}`;
+      div.textContent = text;
+      chatLogEl.appendChild(div);
+      chatLogEl.scrollTop = chatLogEl.scrollHeight;
+    }
+
+    function renderQuickActions(zone) {
+      if (!quickActionsEl) return;
+      quickActionsEl.innerHTML = "";
+      zone.prompts.forEach((promptText) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = promptText;
+        btn.addEventListener("click", () => {
+          chatInputEl.value = promptText;
+          chatInputEl.focus();
+        });
+        quickActionsEl.appendChild(btn);
+      });
+    }
+
+    function selectZone(zone, announce = true) {
+      activeZone = zone;
+      charState.targetX = zone.stand.x;
+      charState.targetY = zone.stand.y;
+      charState.moving = true;
+
+      if (badgeEl) badgeEl.textContent = zone.badge;
+      if (descEl) descEl.innerHTML = zone.desc;
+      if (chatInputEl) chatInputEl.placeholder = zone.placeholder;
+      renderQuickActions(zone);
+
+      if (announce) {
+        appendMessage("system", `Moved to ${zone.title} — ${zone.subtitle}`);
+      }
+    }
+
+    // =========================================================================
+    // 5. FLUID CLICK-TO-WALK CHARACTER & AMBIENT WORLD STATE
+    // =========================================================================
+    const charState = {
+      x: ZONES[1].stand.x,
+      y: ZONES[1].stand.y,
+      targetX: ZONES[1].stand.x,
+      targetY: ZONES[1].stand.y,
+      maxSpeed: 260,
+      moving: false,
+      facingLeft: false,
+      animTimer: 0,
+      walkFrame: 0
+    };
+
+    const clouds = [
+      { file: "cloud1.png", x: 90,   y: 45,  speed: 15, scale: 2.1 },
+      { file: "cloud3.png", x: 430,  y: 82,  speed: 10, scale: 1.9 },
+      { file: "cloud5.png", x: 780,  y: 50,  speed: 13, scale: 2.0 },
+      { file: "cloud6.png", x: 1080, y: 95,  speed: 9,  scale: 1.8 }
+    ];
+
+    const snowflakes = Array.from({ length: 50 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 2.4 + 1.1,
+      vy: Math.random() * 48 + 24,
+      vx: (Math.random() - 0.5) * 26
+    }));
+
+    const autumnLeaves = Array.from({ length: 24 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      w: 6,
+      h: 4,
+      vy: Math.random() * 38 + 20,
+      vx: Math.random() * 42 + 12,
+      color: Math.random() > 0.5 ? "#f59e0b" : "#ea580c"
+    }));
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = W / rect.width;
+      const scaleY = H / rect.height;
+      const clickX = (e.clientX - rect.left) * scaleX;
+      const clickY = (e.clientY - rect.top) * scaleY;
+
+      for (const z of ZONES) {
+        if (clickX >= z.x && clickX <= z.x + z.w && clickY >= z.y && clickY <= z.y + z.h) {
+          selectZone(z, true);
+          return;
+        }
+      }
+
+      if (clickY >= 240) {
+        charState.targetX = Math.max(40, Math.min(W - 40, clickX));
+        charState.targetY = Math.max(260, Math.min(H - 24, clickY));
+        charState.moving = true;
+      }
+    });
+
+    function updateSimulation(dt) {
+      const dx = charState.targetX - charState.x;
+      const dy = charState.targetY - charState.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 2) {
+        charState.moving = true;
+        const speedFactor = dist < 36 ? Math.max(0.35, dist / 36) : 1;
+        const step = Math.min(dist, charState.maxSpeed * speedFactor * dt);
+
+        charState.x += (dx / dist) * step;
+        charState.y += (dy / dist) * step;
+
+        if (Math.abs(dx) > 1.5) {
+          charState.facingLeft = dx < 0;
+        }
+
+        charState.animTimer += dt;
+        if (charState.animTimer >= 0.095) {
+          charState.animTimer = 0;
+          charState.walkFrame = (charState.walkFrame + 1) % 8;
+        }
+      } else {
+        charState.x = charState.targetX;
+        charState.y = charState.targetY;
+        charState.moving = false;
+        charState.walkFrame = 0;
+        charState.animTimer = 0;
+      }
+
+      if (!isAnimPlaying) return;
+
+      clouds.forEach((c) => {
+        c.x += c.speed * dt;
+        if (c.x > W + 160) c.x = -220;
+      });
+
+      if (currentSeason === "Winter") {
+        snowflakes.forEach((s) => {
+          s.y += s.vy * dt;
+          s.x += s.vx * dt;
+          if (s.y > H) { s.y = -6; s.x = Math.random() * W; }
+        });
+      } else if (currentSeason === "Autumn") {
+        autumnLeaves.forEach((l) => {
+          l.y += l.vy * dt;
+          l.x += l.vx * dt;
+          if (l.y > H) { l.y = -6; l.x = Math.random() * W; }
+          if (l.x > W) { l.x = -10; }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 6. RENDER PIPELINE
+    // =========================================================================
+function renderBackground() {
+      const palettes = {
+        Normal: { skyTop: "#38bdf8", skyBot: "#bae6fd", ground: "#2f7a4d", path: "rgba(231, 229, 228, 0.55)" },
+        Autumn: { skyTop: "#60a5fa", skyBot: "#fed7aa", ground: "#9a5b25", path: "rgba(231, 229, 228, 0.45)" },
+        Winter: { skyTop: "#7ea9d6", skyBot: "#cbd5e1", ground: "#dbeafe", path: "rgba(241, 245, 249, 0.65)" }
+      };
+      const pal = palettes[currentSeason] || palettes.Normal;
+      const horizonY = 475;
+
+      // Sky gradient
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+      skyGrad.addColorStop(0, pal.skyTop);
+      skyGrad.addColorStop(1, pal.skyBot);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, horizonY);
+
+      // Drifting clouds
+      clouds.forEach((c) => {
+        drawSprite(c.file, c.x, c.y, c.scale);
+      });
+
+      // Ground plane
+      ctx.fillStyle = pal.ground;
+      ctx.fillRect(0, horizonY, W, H - horizonY);
+
+      // Center white walkway leading right up to the cottage foundation
+      ctx.fillStyle = pal.path;
+      ctx.beginPath();
+      ctx.moveTo(570, horizonY);
+      ctx.lineTo(710, horizonY);
+      ctx.lineTo(810, H);
+      ctx.lineTo(470, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Grass along horizon — skipped underneath the house (x: 525 to 755)
+      if (currentSeason !== "Winter") {
+        const grassImg = sprites["Tall_Grass.png"];
+        if (grassImg) {
+          const step = grassImg.width * 1.6;
+          for (let gx = 0; gx < W; gx += step) {
+            if (gx + step > 530 && gx < 750) continue;
+            drawSprite("Tall_Grass.png", gx, horizonY - grassImg.height * 1.25, 1.6);
+          }
+        }
+      } else {
+        ctx.fillStyle = "rgba(241, 245, 249, 0.85)";
+        ctx.fillRect(0, horizonY - 4, 535, 6);
+        ctx.fillRect(745, horizonY - 4, W - 745, 6);
+      }
+    }
+
+    function renderEnvironmentAndProps() {
+      const suffix = currentSeason === "Winter" ? "W" : (currentSeason === "Autumn" ? "A" : "N");
+      const birch = `Birch_${suffix}.png`;
+      const tree = `Tree_${suffix}.png`;
+      const willow = `Weeping_Willow_${suffix}.png`;
+
+      // 1. BACKGROUND TREES (2 large trees replacing the 4 back trees)
+      drawSprite(tree, 235, 245, 1.75);
+      drawSprite(willow, 795, 240, 1.75);
+
+      // Centered Pixel-Art Cottage resting flush on the top edge of the white path
+      drawCompletePixelHouse(520, 271, 2);
+
+      // 2. FOREGROUND SMALLER TREES (spaced cleanly away from Bonsai, Workbench & critters)
+      drawSprite(birch, 20, 465, 1.45);
+      drawSprite(birch, 375, 465, 1.45);
+      drawSprite(birch, 835, 465, 1.45);
+      drawSprite(birch, 1175, 465, 1.45);
+
+      // 3. HABITAT LOUNGE PROPS & CRITTER FRAMES
+      drawSprite("Bonsai.png", 125, 555, 1.85);
+      drawSprite("Workbench.png", 925, 550, 1.85);
+      drawSprite("Alchemy_Decor.png", 1065, 515, 1.75);
+
+      drawFirstFrame("Torch.png", 495, 430, 32, 32, 1.5);
+      drawFirstFrame("Torch.png", 765, 430, 32, 32, 1.5);
+      drawFirstFrame("fox.png", 495, 585, 32, 32, 1.8);
+      drawFirstFrame("doggy.png", 745, 585, 32, 32, 1.8);
+      drawFirstFrame("fat_cat.png", 805, 595, 32, 32, 1.8);
+    }
+    
+    function renderZones() {
+      if (!showZoneLabels) return;
+
+      ZONES.forEach((z) => {
+        const isSelected = activeZone.id === z.id;
+        ctx.save();
+        ctx.fillStyle = z.bg;
+        ctx.fillRect(z.x, z.y, z.w, z.h);
+
+        ctx.strokeStyle = z.color;
+        ctx.lineWidth = isSelected ? 3 : 2;
+        ctx.setLineDash(isSelected ? [] : [6, 6]);
+        ctx.strokeRect(z.x, z.y, z.w, z.h);
+        ctx.setLineDash([]);
+
+        const pillW = Math.min(265, z.w - 16);
+        ctx.fillStyle = "rgba(11, 21, 17, 0.88)";
+        ctx.fillRect(z.x + 10, z.y + 10, pillW, 40);
+
+        ctx.fillStyle = "#f1f8f4";
+        ctx.font = "bold 13px system-ui, sans-serif";
+        ctx.fillText(z.title, z.x + 18, z.y + 27);
+
+        ctx.fillStyle = z.color;
+        ctx.font = "11px system-ui, sans-serif";
+        ctx.fillText(z.subtitle, z.x + 18, z.y + 42);
+        ctx.restore();
+      });
+    }
+
+    function renderCharacter() {
+      const bobOffset = charState.moving
+        ? Math.abs(Math.sin(charState.walkFrame * (Math.PI / 4))) * 2.5
+        : 0;
+
+      // Ground shadow
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+      ctx.beginPath();
+      ctx.ellipse(charState.x, charState.y, 16, 5.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      const row = charState.moving ? 2 : 0;
+      const col = charState.moving ? charState.walkFrame : 0;
+      const flipHorizontal = charState.moving ? !charState.facingLeft : false;
+
+      const layers = [
+        "Character/Male_Skin.png",
+        "Character/Green_Pants.png",
+        "Character/Green_Shirt.png",
+        "Character/Boots.png",
+        "Character/Male_Hair.png"
+      ];
+      layers.forEach((layer) => {
+        drawCharacterLayer(layer, col, row, charState.x, charState.y - bobOffset, 2.2, flipHorizontal);
+      });
+    }
+
+    function renderWeather() {
+      if (currentSeason === "Winter") {
+        ctx.save();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
+        snowflakes.forEach((s) => {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      } else if (currentSeason === "Autumn") {
+        ctx.save();
+        autumnLeaves.forEach((l) => {
+          ctx.fillStyle = l.color;
+          ctx.fillRect(l.x, l.y, l.w, l.h);
+        });
+        ctx.restore();
+      }
+    }
+
+    let lastFrameTime = performance.now();
+    function renderLoop(now) {
+      const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+
+      ctx.clearRect(0, 0, W, H);
+      updateSimulation(dt);
+      renderBackground();
+      renderEnvironmentAndProps();
+      renderZones();
+      renderCharacter();
+      renderWeather();
+      requestAnimationFrame(renderLoop);
+    }
+
+    // =========================================================================
+    // 7. HUD CONTROLS & FASTAPI /CHAT BACKEND WIRING
+    // =========================================================================
+    document.querySelectorAll("#season-controls button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentSeason = btn.getAttribute("data-season");
+        document.querySelectorAll("#season-controls button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        applySeasonTheme(currentSeason);
+      });
+    });
+
+    const toggleAnimBtn = document.getElementById("toggle-anim");
+    if (toggleAnimBtn) {
+      toggleAnimBtn.addEventListener("click", () => {
+        isAnimPlaying = !isAnimPlaying;
+        toggleAnimBtn.textContent = isAnimPlaying ? "Pause Anim" : "Resume Anim";
+        toggleAnimBtn.classList.toggle("active", !isAnimPlaying);
+      });
+    }
+
+    const toggleZonesBtn = document.getElementById("toggle-zones");
+    if (toggleZonesBtn) {
+      toggleZonesBtn.addEventListener("click", () => {
+        showZoneLabels = !showZoneLabels;
+        toggleZonesBtn.textContent = showZoneLabels ? "Zone Labels: On" : "Zone Labels: Off";
+        toggleZonesBtn.classList.toggle("active", showZoneLabels);
+      });
+    }
+
+    const chatForm = document.getElementById("chat-form");
+    const sendBtn = document.getElementById("send-btn");
+
+    if (chatForm) {
+      chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const message = chatInputEl.value.trim();
+        if (!message) return;
+
+        appendMessage("user", message);
+        chatInputEl.value = "";
+        sendBtn.disabled = true;
+        sendBtn.textContent = "Thinking...";
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message,
+              zone: activeZone.id,
+              room: activeZone.title,
+              season: currentSeason
+            })
+          });
+
+          if (!res.ok) throw new Error(`Server returned ${res.status}`);
+          const data = await res.json();
+          const reply = data.reply || data.response || data.message || JSON.stringify(data);
+          appendMessage("assistant", reply);
+        } catch (err) {
+          appendMessage("system", `Backend connection note (${err.message}). Make sure your FastAPI /chat route is running.`);
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = "Ask Mentor";
+        }
+      });
+    }
+
+    applySeasonTheme(currentSeason);
+    selectZone(ZONES[1], false);
+    requestAnimationFrame(renderLoop);
+  </script>
+</body>
+</html>
